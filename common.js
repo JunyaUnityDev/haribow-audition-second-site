@@ -190,9 +190,12 @@ function renderRotation() {
   // Rot番号でグループ化
   const groups = {};
   rows.forEach(r => {
-    const [rotNum, type, court, skill, jumper, t1, t2, judgeJ, judgeR] = r;
+    const isNew = r.length >= 10;
+    const [rotNum, type, court, skill, jumper, jumper2, t1, t2, judgeJ, judgeR] = isNew
+      ? r
+      : [r[0], r[1], r[2], r[3], r[4], '', r[5], r[6], r[7], r[8]];
     if (!groups[rotNum]) groups[rotNum] = [];
-    groups[rotNum].push({type, court, skill, jumper, t1, t2, judgeJ, judgeR});
+    groups[rotNum].push({type, court, skill, jumper, jumper2, t1, t2, judgeJ, judgeR});
   });
 
   let html = '';
@@ -213,7 +216,7 @@ function renderRotation() {
           const turners = [c.t1, c.t2].filter(Boolean);
           return `<div class="court-block">
             ${!isBasic ? `<div class="court-lbl">${c.court} — <span class="skill-tag ${skClass}" style="font-size:10px;padding:1px 6px">${c.skill}</span></div>` : ''}
-            <div class="court-field"><span class="court-key">ジャンパー</span><span class="role-chip chip-jumper">${c.jumper}</span></div>
+            <div class="court-field"><span class="court-key">ジャンパー</span><span class="role-chip chip-jumper">${c.jumper}</span>${c.jumper2?`<span class="role-chip chip-jumper" style="margin-left:4px">${c.jumper2}</span>`:''}</div>
             <div class="court-field"><span class="court-key">ターナー</span>
               ${turners.length ? turners.map(t=>`<span class="role-chip chip-turner">${t}</span>`).join(' ') : '<span style="font-size:11px;color:var(--text3)">なし</span>'}
             </div>
@@ -282,8 +285,13 @@ function searchName() {
   const seen = new Set();
 
   rotRows.forEach(r => {
-    const [rotNum, type, court, skill, jumper, t1, t2] = r;
-    if (jumper && jumper.includes(query)) {
+    const isNew = r.length >= 10;
+    const rotNum = r[0], type = r[1], court = r[2], skill = r[3];
+    const jumper = r[4];
+    const jumper2 = isNew ? r[5] : '';
+    const t1 = isNew ? r[6] : r[5];
+    const t2 = isNew ? r[7] : r[6];
+    if ((jumper && jumper.includes(query)) || (jumper2 && jumper2.includes(query))) {
       const key = `${rotNum}-${skill}-ジャンパー`;
       if (!seen.has(key)) { seen.add(key); appearances.push({rotNum, skill, role: 'ジャンパー'}); }
     }
