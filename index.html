@@ -81,7 +81,7 @@ body{
   <div class="card">
     <div class="card-title">参加する会場を選んでください</div>
 
-    <a class="venue-btn" href="tokyo.html">
+    <a class="venue-btn" href="tokyo.html" data-venue-key="tokyo">
       <svg class="venue-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="rgba(255,255,255,.7)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
         <path d="M10 2C7.2 2 5 4.2 5 7c0 4 5 11 5 11s5-7 5-11c0-2.8-2.2-5-5-5z"/>
         <circle cx="10" cy="7" r="1.5"/>
@@ -93,7 +93,7 @@ body{
       <span class="venue-arrow">›</span>
     </a>
 
-    <a class="venue-btn" href="osaka.html">
+    <a class="venue-btn" href="osaka.html" data-venue-key="osaka">
       <svg class="venue-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="rgba(255,255,255,.7)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
         <path d="M10 2C7.2 2 5 4.2 5 7c0 4 5 11 5 11s5-7 5-11c0-2.8-2.2-5-5-5z"/>
         <circle cx="10" cy="7" r="1.5"/>
@@ -109,5 +109,63 @@ body{
   <div class="notice">間違えた場合はブラウザの「戻る」でこの画面に戻れます</div>
   <div class="version">v2026.04.17</div>
 </div>
+
+<script>
+/* スプシの「会場・基本情報」シートから 審査日 / 会場名 を取得し、
+   [data-venue-key] カードの .venue-detail を更新する。
+   venues.json の fallbackDate / fallbackVenue は、各HTMLカードに
+   ベタ書きしてある文言と一致させておくこと（スプシ失敗時にそのまま残る）。 */
+(async function () {
+  const csvUrl = (id, sheet) =>
+    `https://docs.google.com/spreadsheets/d/${id}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheet)}`;
+
+  function parseCSV(text) {
+    const rows = [];
+    for (const line of text.split('\n')) {
+      if (!line.trim()) continue;
+      const cols = [];
+      let cur = '', inQ = false;
+      for (let i = 0; i < line.length; i++) {
+        const c = line[i];
+        if (c === '"') {
+          if (inQ && line[i+1] === '"') { cur += '"'; i++; }
+          else inQ = !inQ;
+        } else if (c === ',' && !inQ) {
+          cols.push(cur.trim()); cur = '';
+        } else cur += c;
+      }
+      cols.push(cur.trim());
+      rows.push(cols);
+    }
+    return rows;
+  }
+
+  async function updateCard(venue) {
+    const card = document.querySelector(`[data-venue-key="${venue.key}"]`);
+    if (!card) return;
+    const detail = card.querySelector('.venue-detail');
+    if (!detail) return;
+    try {
+      const res = await fetch(csvUrl(venue.spreadsheetId, '会場・基本情報'));
+      if (!res.ok) throw new Error('fetch failed');
+      const rows = parseCSV(await res.text());
+      const dateRow = rows.find(r => r[0] === '審査日');
+      const venueRow = rows.find(r => r[0] === '会場名');
+      const date = (dateRow && dateRow[1]) || venue.fallbackDate;
+      const place = (venueRow && venueRow[1]) || venue.fallbackVenue;
+      detail.innerHTML = `${date}&nbsp; ${place}`;
+    } catch (_) {
+      /* フォールバック表示（既存HTML）を維持 */
+    }
+  }
+
+  try {
+    const config = await fetch('venues.json').then(r => r.json());
+    (config.venues || []).forEach(updateCard);
+  } catch (_) {
+    /* venues.json 読めない → フォールバック表示を維持 */
+  }
+})();
+</script>
 </body>
 </html>

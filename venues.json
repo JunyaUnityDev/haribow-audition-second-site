@@ -1,0 +1,22 @@
+{
+  "venues": [
+    {
+      "key": "tokyo",
+      "label": "東京会場",
+      "shortLabel": "東京",
+      "page": "tokyo.html",
+      "spreadsheetId": "1v3g_pUbPiq-lT8_4Zf3XkIVj1AqYj1PWZr1CQjeZ9ms",
+      "fallbackDate": "6月21日（日）",
+      "fallbackVenue": "渋谷区リフレッシュ氷川"
+    },
+    {
+      "key": "osaka",
+      "label": "大阪会場",
+      "shortLabel": "大阪",
+      "page": "osaka.html",
+      "spreadsheetId": "1_xpa6itx2WDF1_pcqGTHYo03T6QjE_FXkEeAZqnQJ7c",
+      "fallbackDate": "6月13日（土）",
+      "fallbackVenue": "くるくるプラザ 吹田市"
+    }
+  ]
+}
