@@ -1,0 +1,10 @@
+# GCP / サービスアカウント鍵
+*-service-account*.json
+*-credentials*.json
+haribow-claude-*.json
+*.key.json
+
+# 秘密情報
+SECRETS.md
+.env
+.env.*
