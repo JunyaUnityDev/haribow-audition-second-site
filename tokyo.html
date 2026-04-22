@@ -69,7 +69,7 @@ body{font-family:'Noto Sans JP',sans-serif;font-size:14px;color:var(--text);back
 }
 .result-card{background:#fff;border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-top:16px;animation:fadeIn .2s ease}
 @keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
-.result-header{padding:14px 18px;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.result-header{padding:14px 18px;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .result-name{font-size:16px;font-weight:700}
 .result-section{padding:14px 18px}
 .result-section-title{font-size:11px;font-weight:600;color:var(--text3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:10px}
@@ -143,6 +143,15 @@ body{font-family:'Noto Sans JP',sans-serif;font-size:14px;color:var(--text);back
   .page{padding:20px 16px 60px}
   .page-cover{margin:-20px -16px 0}
   .venue-grid{grid-template-columns:1fr}
+  /* スマホでは複数コートを縦積みにする（案A） */
+  .rot-body{grid-template-columns:1fr !important}
+  .court-block{border-right:none;border-bottom:.5px solid var(--border)}
+  .court-block:last-child{border-bottom:none}
+  /* チームメンバー行：スマホでは名前とスキルを縦2段に */
+  .team-member-row{flex-wrap:wrap;row-gap:4px}
+  .member-name{min-width:auto}
+  .member-pills{width:100%;margin-top:2px}
+  .member-pill{font-size:11px;padding:2px 8px}
 }
 </style>
 </head>
@@ -503,7 +512,11 @@ function searchName() {
     if (name && name.includes(query)) myTeam = teamName;
   });
   if (myTeam) {
-    myTeamMembers = teamRows.filter(r => r[0] === myTeam).map(r => r[1]);
+    myTeamMembers = teamRows.filter(r => r[0] === myTeam).map(r => ({
+      name: r[1],
+      type: r[2],
+      skills: r[3]
+    }));
   }
 
   if (!appearances.length && !myTeam) {
@@ -535,9 +548,22 @@ function searchName() {
     html += `<hr class="result-divider">
     <div class="result-section">
       <div class="result-section-title">チーム審査</div>
-      <div class="result-row">
-        <span class="team-chip">${myTeam}</span>
-        <span style="font-size:13px;color:var(--text2)">メンバー：${myTeamMembers.join('、')}</span>
+      <div class="team-card">
+        <div class="team-card-header" style="border-top:3px solid #1a5fb4">
+          <span class="team-card-name">${myTeam}</span>
+          <span style="font-size:11px;color:var(--text3)">${myTeamMembers.length}名</span>
+        </div>
+        <div class="team-card-body">
+          ${myTeamMembers.map(m => {
+            const skillList = (m.skills || '').split('・').filter(Boolean);
+            const isMe = m.name && m.name.includes(query);
+            return `<div class="team-member-row"${isMe ? ' style="background:#fff8ee;margin:0 -14px;padding:6px 14px"' : ''}>
+              <span class="member-name">${m.name}${isMe ? ' <span style="font-size:11px;color:#d9730d;font-weight:600;margin-left:4px">← あなた</span>' : ''}</span>
+              <span style="font-size:10px;color:var(--text3);margin-right:2px">${m.type === '運営スタッフ' ? '運営' : ''}</span>
+              <div class="member-pills">${skillList.map(s => `<span class="member-pill ${SKILL_CLASS[s]||''}">${s}</span>`).join('')}</div>
+            </div>`;
+          }).join('')}
+        </div>
       </div>
     </div>`;
   }
