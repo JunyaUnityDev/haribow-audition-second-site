@@ -107,10 +107,12 @@ async function loadAll() {
     renderAll();
   } catch(e) {
     document.getElementById('lastUpdated').textContent = 'エラー';
-    ['venueInfoBlock','timetableBlock','rotationBlock','teamBlock'].forEach(id => {
+    ['venueInfoBlock','timetableBlock','rotationBlock'].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.innerHTML = `<div class="error-box">データの読み込みに失敗しました。スプシの公開設定を確認してください。<br><small>${e.message}</small></div>`;
     });
+    const teamEl = document.getElementById('teamBlock');
+    if (teamEl) teamEl.innerHTML = '<div class="empty-box">チームの割り振りは当日公開されます<br><small>当日の早い時間に最新情報が反映されます</small></div>';
   }
 }
 
@@ -206,7 +208,7 @@ function renderRotation() {
       <div class="rot-header">
         <span class="rot-header-num">Rot. ${rotNum}</span>
         ${isBasic
-          ? `<span class="skill-tag sk-basic">ベーシック（リズム）</span><span style="font-size:11px;color:var(--text3)">単独審査</span>`
+          ? `<span class="skill-tag sk-basic">ベーシック（リズム）</span><span style="font-size:11px;color:var(--text3)">${courts.length>1?`${courts.length}コート同時進行`:'単独審査'}</span>`
           : `<span style="font-size:12px;color:var(--text3)">${courts.length}コート同時進行</span>`
         }
       </div>
@@ -215,7 +217,7 @@ function renderRotation() {
           const skClass = SKILL_CLASS[c.skill] || '';
           const turners = [c.t1, c.t2].filter(Boolean);
           return `<div class="court-block">
-            ${!isBasic ? `<div class="court-lbl">${c.court} — <span class="skill-tag ${skClass}" style="font-size:10px;padding:1px 6px">${c.skill}</span></div>` : ''}
+            ${courts.length>1 ? `<div class="court-lbl">${c.court}${!isBasic ? ` — <span class="skill-tag ${skClass}" style="font-size:10px;padding:1px 6px">${c.skill}</span>` : ''}</div>` : ''}
             <div class="court-field"><span class="court-key">ジャンパー</span><span class="role-chip chip-jumper">${c.jumper}</span>${c.jumper2?`<span class="role-chip chip-jumper" style="margin-left:4px">${c.jumper2}</span>`:''}</div>
             <div class="court-field"><span class="court-key">ターナー</span>
               ${turners.length ? turners.map(t=>`<span class="role-chip chip-turner">${t}</span>`).join(' ') : '<span style="font-size:11px;color:var(--text3)">なし</span>'}
@@ -237,7 +239,7 @@ const TEAM_COLORS = ['#1a5fb4','#1a7a40','#854F0B','#3C3489','#993C1D','#0F6E56'
 function renderTeam() {
   const rows = DATA.team.filter(r => r.length >= 2 && r[0] && r[0] !== 'チーム名');
   if (!rows.length) {
-    document.getElementById('teamBlock').innerHTML = '<div class="empty-box">チーム情報が登録されていません<br><small>生成アプリでCSVを出力して、スプシに貼り付けてください</small></div>';
+    document.getElementById('teamBlock').innerHTML = '<div class="empty-box">チームの割り振りは当日公開されます<br><small>当日の早い時間に最新情報が反映されます</small></div>';
     return;
   }
 
