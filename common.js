@@ -220,7 +220,10 @@ function renderRotation() {
             ${courts.length>1 ? `<div class="court-lbl">${c.court}${!isBasic ? ` — <span class="skill-tag ${skClass}" style="font-size:10px;padding:1px 6px">${c.skill}</span>` : ''}</div>` : ''}
             <div class="court-field"><span class="court-key">ジャンパー</span><span class="role-chip chip-jumper">${c.jumper}</span>${c.jumper2?`<span class="role-chip chip-jumper" style="margin-left:4px">${c.jumper2}</span>`:''}</div>
             <div class="court-field"><span class="court-key">ターナー</span>
-              ${turners.length ? turners.map(t=>`<span class="role-chip chip-turner">${t}</span>`).join(' ') : '<span style="font-size:11px;color:var(--text3)">なし</span>'}
+              ${turners.length ? (c.skill === '３倍'
+                ? turners.map((t,i)=>`<span class="role-chip chip-turner">${t}<span style="font-size:10px;margin-left:4px;opacity:.7">${i===0?'前':'後'}</span></span>`).join(' ')
+                : turners.map(t=>`<span class="role-chip chip-turner">${t}</span>`).join(' ')
+              ) : '<span style="font-size:11px;color:var(--text3)">なし</span>'}
             </div>
             <div class="judge-sep">
               <div class="court-field"><span class="court-key">J審査員</span><span style="font-size:11px;background:#fff8ee;border:.5px solid #f5d090;color:#9a6000;padding:2px 8px;border-radius:20px">${c.judgeJ||''}</span></div>
