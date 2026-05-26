@@ -209,7 +209,9 @@ function renderRotation() {
         <span class="rot-header-num">Rot. ${rotNum}</span>
         ${isBasic
           ? `<span class="skill-tag sk-basic">ベーシック（リズム）</span><span style="font-size:11px;color:var(--text3)">${courts.length>1?`${courts.length}コート同時進行`:'単独審査'}</span>`
-          : `<span style="font-size:12px;color:var(--text3)">${courts.length}コート同時進行</span>`
+          : (courts.length === 1
+            ? `<span class="skill-tag ${SKILL_CLASS[courts[0].skill]||''}">${courts[0].skill}</span><span style="font-size:11px;color:var(--text3)">単独審査</span>`
+            : `<span style="font-size:12px;color:var(--text3)">${courts.length}コート同時進行</span>`)
         }
       </div>
       <div class="rot-body" style="grid-template-columns:repeat(${colCount},1fr)">
