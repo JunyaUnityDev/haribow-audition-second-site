@@ -308,6 +308,16 @@ function searchName() {
         if (!seen.has(key)) { seen.add(key); appearances.push({rotNum, skill, role: 'ターナー'}); }
       }
     });
+    const judgeJ = isNew ? r[8] : r[7];
+    const judgeR = isNew ? r[9] : r[8];
+    if (judgeJ && judgeJ.includes(query)) {
+      const key = `${rotNum}-${skill}-J審査員`;
+      if (!seen.has(key)) { seen.add(key); appearances.push({rotNum, skill, role: 'J審査員'}); }
+    }
+    if (judgeR && judgeR !== '（不要）' && judgeR.includes(query)) {
+      const key = `${rotNum}-${skill}-縄審査員`;
+      if (!seen.has(key)) { seen.add(key); appearances.push({rotNum, skill, role: '縄審査員'}); }
+    }
   });
 
   // チームから検索
@@ -340,12 +350,12 @@ function searchName() {
 
   if (appearances.length) {
     html += `<div class="result-section">
-      <div class="result-section-title">ソロ審査 出番（${appearances.length}回）</div>
+      <div class="result-section-title">ソロ審査 出番・担当（${appearances.length}件）</div>
       <div class="result-rows">
         ${appearances.map(a => `<div class="result-row">
           <span class="rot-num">Rot.${a.rotNum}</span>
           <span class="skill-tag ${SKILL_CLASS[a.skill]||''}">${a.skill||'ベーシック'}</span>
-          <span class="role-chip ${a.role==='ジャンパー'?'chip-jumper':'chip-turner'}">${a.role}</span>
+          ${a.role==='ジャンパー'?`<span class="role-chip chip-jumper">${a.role}</span>`:a.role==='ターナー'?`<span class="role-chip chip-turner">${a.role}</span>`:a.role==='J審査員'?`<span style="font-size:11px;background:#fff8ee;border:.5px solid #f5d090;color:#9a6000;padding:2px 8px;border-radius:20px">${a.role}</span>`:`<span style="font-size:11px;background:#eefff4;border:.5px solid #a0e0b8;color:#1a7a40;padding:2px 8px;border-radius:20px">${a.role}</span>`}
         </div>`).join('')}
       </div>
     </div>`;
