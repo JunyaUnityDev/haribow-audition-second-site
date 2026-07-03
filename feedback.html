@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HARIBOW オーディション フィードバック</title>
+<style>
+:root{--bg:#f5f8fd;--panel:#ffffff;--line:#d3deec;--ink:#142a52;--dim:#5b6b86;--faint:#93a1b8;--blue:#2563eb;--ok:#1a9b66;--warn:#d1502f;--shadow:0 6px 20px rgba(20,42,82,.10)}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(900px 500px at 70% -10%,rgba(37,99,235,.08),transparent 60%),var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif;font-feature-settings:"palt";-webkit-font-smoothing:antialiased;line-height:1.6}
+.wrap{max-width:640px;margin:0 auto;padding:22px 16px 90px}
+h1{font-size:20px;font-weight:800;margin:0 0 6px}
+h1 b{color:var(--blue)}
+.lead{color:var(--dim);font-size:13.5px;margin:0 0 18px}
+.sec-t{font-size:15px;font-weight:800;margin:26px 0 4px}
+.sec-t .req{font-size:11px;color:#fff;background:var(--warn);padding:2px 7px;border-radius:6px;margin-left:8px;vertical-align:middle;letter-spacing:.03em}
+.sec-t .opt{font-size:11px;color:var(--dim);background:#e7edf6;padding:2px 7px;border-radius:6px;margin-left:8px;vertical-align:middle}
+.sec-d{color:var(--dim);font-size:12.5px;margin:0 0 10px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:18px;margin-bottom:14px}
+label{display:block;font-size:11px;color:var(--faint);text-transform:uppercase;letter-spacing:.1em;font-weight:700;margin-bottom:6px}
+select,input,textarea{width:100%;background:#eef3fa;border:1px solid var(--line);color:var(--ink);border-radius:9px;padding:11px 12px;font-size:15px;font-family:inherit}
+textarea{min-height:46px;resize:vertical}
+.person{border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px;background:#fbfcfe}
+.person h3{margin:0 0 10px;font-size:16px;font-weight:800;display:flex;align-items:center;gap:8px}
+.tag{font-size:10px;font-weight:800;color:var(--blue);background:rgba(37,99,235,.1);padding:2px 8px;border-radius:6px;letter-spacing:.04em}
+.tag.ld{color:#0f766e;background:rgba(15,118,110,.12)}
+.rm{margin-left:auto;font-size:12px;color:var(--warn);background:none;border:0;cursor:pointer;font-weight:700;width:auto;padding:2px 4px}
+.fld{margin-bottom:10px}
+.fld:last-child{margin:0}
+.fld .k{font-size:12px;font-weight:700;margin-bottom:4px}
+.k .g{color:var(--ok)} .k .b{color:var(--warn)}
+.btn{width:100%;background:var(--blue);color:#fff;border:0;border-radius:10px;padding:15px;font-size:15px;font-weight:800;cursor:pointer;box-shadow:0 4px 16px rgba(37,99,235,.28);letter-spacing:.03em}
+.btn:disabled{opacity:.5}
+.addrow{display:flex;gap:8px}
+.addrow select{flex:1}
+.addbtn{width:auto;white-space:nowrap;background:#e7edf6;color:var(--blue);border:1px solid var(--line);border-radius:9px;padding:0 16px;font-weight:800;cursor:pointer;font-size:14px}
+.muted{color:var(--faint);font-size:12.5px}
+.err{color:var(--warn);font-size:13px;margin-top:8px;display:none}
+.done{text-align:center;padding:50px 20px}
+.done .ck{font-size:44px;color:var(--ok);font-weight:800}
+.done h2{font-size:20px;margin:12px 0 6px}
+#area{display:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1><b>HARIBOW</b> オーディション フィードバック</h1>
+  <p class="lead">冬案件はチームでの共同生活を伴うため、メンバー同士の相性がとても重要です。あなたの名前を選ぶと、あなた以外のチームメンバー（＋リーダー）が出てきます。「いいところ」「改善点」を教えてください。<br><b>詳しく書いてくれるほど嬉しいですが、最低でも一言はお願いします。</b><br><br><b>フィードバック結果は、参加者同士に共有されることはありません。</b>また、この結果を他の参加者に共有しないようにしてください。</p>
+
+  <div id="form">
+    <div class="card">
+      <label>あなたの名前</label>
+      <select id="who"><option value="">選択してください</option></select>
+    </div>
+
+    <div id="area">
+      <div class="sec-t">あなたのチーム<span class="req">必須</span></div>
+      <div class="sec-d">同じチームの参加者とリーダーについて、一言ずつお願いします。</div>
+      <div id="team"></div>
+
+      <div class="sec-t">他の参加者へのひとこと<span class="opt">任意</span></div>
+      <div class="sec-d">他のチームで気になった人がいれば、名前を選んで追加してください（任意）。</div>
+      <div class="card">
+        <div class="addrow">
+          <select id="pick"><option value="">名前を選んで追加</option></select>
+          <button class="addbtn" id="addbtn" type="button">＋追加</button>
+        </div>
+        <div id="others" style="margin-top:12px"></div>
+      </div>
+
+      <div class="sec-t">オーディションへの感想・改善点<span class="opt">任意</span></div>
+      <div class="sec-d">運営やオーディション自体について、感じたことがあれば自由にどうぞ（任意）。</div>
+      <div class="card"><textarea id="overall" placeholder="自由記入（任意）" style="min-height:80px"></textarea></div>
+
+      <div class="card">
+        <button class="btn" id="send" type="button">送信する</button>
+        <div class="err" id="err">チームメンバーの欄に未記入があります。全員分の記入をお願いします。</div>
+        <p class="muted" style="margin:10px 0 0">送信は1回でお願いします。修正が必要な時は運営へ連絡してください。</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="done" id="done" style="display:none">
+    <div class="ck">✓</div>
+    <h2>送信ありがとうございました！</h2>
+    <p class="muted">フィードバックを受け付けました。</p>
+  </div>
+</div>
+
+<script>
+var GAS="https://script.google.com/macros/s/AKfycbyDIMQbIFqT5n4xoBF-tETojJbj79t5QUVoB21BFUcc4JknGS7FjLeEBuIqMZxc_ytA/exec";
+var TEAMS=[
+ {venue:'大阪',name:'チーム1',leader:'ライカ',members:['佐伯健太','佐藤姫礼','足立葵叶','正木菜海']},
+ {venue:'大阪',name:'チーム2',leader:'Takumi',members:['鈴木梨優','太田煌大','門野暖大','太田唄心']},
+ {venue:'東京',name:'チーム1',leader:'そら',members:['工藤美怜','徳永芹','長谷川惺也','鈴木小暖']},
+ {venue:'東京',name:'チーム2',leader:'奏',members:['金箱秀亮','二階堂笑穂','吉村悠里','山岸煌']},
+ {venue:'東京',name:'チーム3',leader:'ゆう',members:['下村琉唯','西川世那','鈴木真海','森哉大']},
+ {venue:'東京',name:'チーム4',leader:'ゆきたか',members:['渡邉沙來','稗田悠介','宮川凛空','関野咲希']},
+ {venue:'東京',name:'チーム5',leader:'みさき',members:['仁和柊人','山﨑理人','森大耀','三好薫月']},
+ {venue:'東京',name:'チーム6',leader:'みずき',members:['飯田優佳','服部快','今村琳乃介','永井竜介']}
+];
+var teamOf={},allMembers=[];
+TEAMS.forEach(function(t){ t.members.forEach(function(m){ teamOf[m]=t; allMembers.push(m); }); });
+var whoEl=document.getElementById('who');
+allMembers.forEach(function(m){ var o=document.createElement('option'); o.value=m; o.textContent=m; whoEl.appendChild(o); });
+
+var teamTargets=[], otherTargets=[];
+function personCard(nameLabel, isLeader, kind, idx){
+  var div=document.createElement('div'); div.className='person';
+  var rm = kind==='他メンバー' ? '<button class="rm" data-rm="'+idx+'" type="button">削除</button>' : '';
+  div.innerHTML='<h3>'+nameLabel+(isLeader?' <span class="tag ld">リーダー</span>':' <span class="tag">'+(kind==='他メンバー'?'他チーム':'メンバー')+'</span>')+rm+'</h3>'+
+    '<div class="fld"><div class="k"><span class="g">◎ いいところ</span></div><textarea data-k="'+kind+'" data-i="'+idx+'" data-t="good" placeholder="'+(kind==='他メンバー'?'任意':'できれば詳しく（最低でも一言）')+'"></textarea></div>'+
+    '<div class="fld"><div class="k"><span class="b">△ 改善点</span></div><textarea data-k="'+kind+'" data-i="'+idx+'" data-t="improve" placeholder="'+(kind==='他メンバー'?'任意':'できれば詳しく（最低でも一言）')+'"></textarea></div>';
+  return div;
+}
+function refreshPick(){
+  var self=whoEl.value; var t=teamOf[self];
+  var used=otherTargets.slice();
+  var pick=document.getElementById('pick'); pick.innerHTML='<option value="">名前を選んで追加</option>';
+  allMembers.forEach(function(m){
+    if(m===self) return;
+    if(t && t.members.indexOf(m)>=0) return; // 自チームは除外
+    if(used.indexOf(m)>=0) return;
+    var o=document.createElement('option'); o.value=m; o.textContent=m; pick.appendChild(o);
+  });
+}
+whoEl.addEventListener('change',function(){
+  var self=whoEl.value; var area=document.getElementById('area');
+  var tc=document.getElementById('team'); tc.innerHTML=''; teamTargets=[]; otherTargets=[]; document.getElementById('others').innerHTML='';
+  if(!self){ area.style.display='none'; return; }
+  var t=teamOf[self];
+  var others=t.members.filter(function(m){return m!==self;}).map(function(m){return {name:m,leader:false};});
+  others.push({name:t.leader,leader:true});
+  others.forEach(function(o,i){ teamTargets.push(o.name); tc.appendChild(personCard(o.name,o.leader,'自チーム',i)); });
+  refreshPick(); document.getElementById('err').style.display='none'; area.style.display='block';
+});
+document.getElementById('addbtn').addEventListener('click',function(){
+  var pick=document.getElementById('pick'); var v=pick.value; if(!v) return;
+  var idx=otherTargets.length; otherTargets.push(v);
+  document.getElementById('others').appendChild(personCard(v,false,'他メンバー',idx));
+  refreshPick();
+});
+document.getElementById('others').addEventListener('click',function(e){
+  var b=e.target.closest('[data-rm]'); if(!b) return;
+  var idx=+b.getAttribute('data-rm'); otherTargets[idx]=null;
+  b.closest('.person').remove(); refreshPick();
+});
+document.getElementById('send').addEventListener('click',function(){
+  var self=whoEl.value; if(!self) return; var t=teamOf[self];
+  var items=[];
+  var missing=false;
+  teamTargets.forEach(function(name,i){
+    var g=document.querySelector('textarea[data-k="自チーム"][data-i="'+i+'"][data-t="good"]').value.trim();
+    var b=document.querySelector('textarea[data-k="自チーム"][data-i="'+i+'"][data-t="improve"]').value.trim();
+    if(!g||!b) missing=true;
+    items.push({kind:'自チーム',target:name,good:g,improve:b});
+  });
+  if(missing){ document.getElementById('err').style.display='block'; return; }
+  otherTargets.forEach(function(name,i){
+    if(!name) return;
+    var g=(document.querySelector('textarea[data-k="他メンバー"][data-i="'+i+'"][data-t="good"]')||{}).value||'';
+    var b=(document.querySelector('textarea[data-k="他メンバー"][data-i="'+i+'"][data-t="improve"]')||{}).value||'';
+    if(g.trim()||b.trim()) items.push({kind:'他メンバー',target:name,good:g.trim(),improve:b.trim()});
+  });
+  var overall=document.getElementById('overall').value.trim();
+  var payload={respondent:self,team:t.venue+t.name,items:items,overall:overall};
+  var btn=document.getElementById('send'); btn.disabled=true; btn.textContent='送信中…';
+  fetch(GAS,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)})
+    .then(function(){ finish(); })
+    .catch(function(){ finish(); }); // no-corsは結果を読めないため楽観的に完了表示
+  setTimeout(finish,4000);
+});
+var finished=false;
+function finish(){ if(finished) return; finished=true;
+  document.getElementById('form').style.display='none';
+  document.getElementById('done').style.display='block';
+  window.scrollTo(0,0);
+}
+</script>
+</body>
+</html>
