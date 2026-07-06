@@ -87,6 +87,7 @@ select{width:100%;background:#eef3fa;border:1px solid var(--line);color:var(--in
     <div class="ck">✓</div>
     <h2>登録ありがとうございました！</h2>
     <p class="muted">参加可能日を受け付けました。変更があればまたこのページから登録できます。</p>
+    <button class="btn" id="backTop" type="button" style="display:block;max-width:260px;margin:22px auto 0">トップに戻る</button>
   </div>
 </div>
 
@@ -201,6 +202,7 @@ document.getElementById("send").addEventListener("click",function(){
     .then(finish).catch(finish);
   setTimeout(finish,4000);
 });
+document.getElementById("backTop").addEventListener("click",function(){ window.scrollTo(0,0); location.reload(); });
 var fin=false;function finish(){if(fin)return;fin=true;
   document.getElementById("area").style.display="none";
   document.querySelectorAll(".card").forEach(function(c){c.style.display="none";});
