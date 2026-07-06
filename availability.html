@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HARIBOW 参加可能日の登録</title>
+<style>
+:root{--bg:#f5f8fd;--panel:#ffffff;--line:#d3deec;--ink:#142a52;--dim:#5b6b86;--faint:#93a1b8;--blue:#2563eb;--ok:#1a9b66;--warn:#d1502f;--shadow:0 6px 20px rgba(20,42,82,.10)}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(900px 500px at 70% -10%,rgba(37,99,235,.08),transparent 60%),var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif;font-feature-settings:"palt";-webkit-font-smoothing:antialiased;line-height:1.6}
+.wrap{max-width:520px;margin:0 auto;padding:22px 16px 110px}
+h1{font-size:20px;font-weight:800;margin:0 0 6px}
+h1 b{color:var(--blue)}
+.lead{color:var(--dim);font-size:13.5px;margin:0 0 16px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:16px;margin-bottom:14px}
+label{display:block;font-size:11px;color:var(--faint);text-transform:uppercase;letter-spacing:.1em;font-weight:700;margin-bottom:6px}
+select{width:100%;background:#eef3fa;border:1px solid var(--line);color:var(--ink);border-radius:9px;padding:11px 12px;font-size:15px;font-family:inherit}
+.calhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.calhead .ym{font-size:17px;font-weight:800}
+.nav{background:#eef3fa;border:1px solid var(--line);color:var(--blue);border-radius:9px;width:42px;height:38px;font-size:18px;font-weight:800;cursor:pointer}
+.dow{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:4px}
+.dow div{text-align:center;font-size:11px;color:var(--faint);font-weight:700;padding:2px 0}
+.dow .sun{color:#d1502f}.dow .sat{color:#2563eb}
+.grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.day{aspect-ratio:1/1;border:1px solid var(--line);border-radius:9px;background:#fbfcfe;font-size:15px;font-weight:700;color:var(--ink);cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;-webkit-tap-highlight-color:transparent}
+.day.blank{border:0;background:transparent;cursor:default}
+.day.on{background:var(--ok);border-color:var(--ok);color:#fff;box-shadow:0 2px 8px rgba(26,155,102,.3)}
+.day.today{outline:2px solid var(--blue);outline-offset:-2px}
+.count{text-align:center;font-size:14px;color:var(--dim);margin:14px 0 4px}
+.count b{color:var(--ok);font-size:18px}
+.sel{font-size:12px;color:var(--faint);margin-top:6px;line-height:1.7;word-break:break-all}
+.foot{position:fixed;left:0;right:0;bottom:0;padding:12px 16px calc(12px + env(safe-area-inset-bottom));background:linear-gradient(180deg,transparent,var(--bg) 30%)}
+.foot .inner{max-width:520px;margin:0 auto}
+.btn{width:100%;background:var(--blue);color:#fff;border:0;border-radius:11px;padding:15px;font-size:15px;font-weight:800;cursor:pointer;box-shadow:0 4px 16px rgba(37,99,235,.28)}
+.btn:disabled{opacity:.5}
+.err{color:var(--warn);font-size:13px;margin-top:8px;display:none;text-align:center}
+.done{text-align:center;padding:50px 20px}
+.done .ck{font-size:44px;color:var(--ok);font-weight:800}
+.done h2{font-size:20px;margin:12px 0 6px}
+.muted{color:var(--faint);font-size:12.5px}
+#area{display:none}
+.tip{background:rgba(37,99,235,.06);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:12.5px;color:var(--dim);margin-bottom:12px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1><b>HARIBOW</b> 参加可能日の登録</h1>
+  <p class="lead">冬案件でチームを組むために、あなたが参加できる日を教えてください。カレンダーの ‹ › で月を移動して、<b>行ける日をタップ</b>してください（複数の月をまたいでOK）。運営からの案内で指定された期間（例：10〜3月）を目安に入れてください。</p>
+
+  <div class="card">
+    <label>あなたの名前</label>
+    <select id="who"><option value="">選択してください</option></select>
+  </div>
+
+  <div id="area">
+    <div class="tip">緑になっている日＝行ける日です。もう一度タップで解除。あとから何度でも登録し直せます（送信すると前回の内容は上書きされます）。</div>
+    <div class="card">
+      <div class="calhead">
+        <button class="nav" id="prev" type="button">‹</button>
+        <div class="ym" id="ym"></div>
+        <button class="nav" id="next" type="button">›</button>
+      </div>
+      <div class="dow"><div class="sun">日</div><div>月</div><div>火</div><div>水</div><div>木</div><div>金</div><div class="sat">土</div></div>
+      <div class="grid" id="grid"></div>
+      <div class="count">行ける日：<b id="cnt">0</b> 日</div>
+      <div class="sel" id="sel"></div>
+    </div>
+  </div>
+
+  <div class="done" id="done" style="display:none">
+    <div class="ck">✓</div>
+    <h2>登録ありがとうございました！</h2>
+    <p class="muted">参加可能日を受け付けました。変更があればまたこのページから登録できます。</p>
+  </div>
+</div>
+
+<div class="foot" id="foot" style="display:none"><div class="inner">
+  <button class="btn" id="send" type="button">この内容で送信する</button>
+  <div class="err" id="err">行ける日が1日も選ばれていません。</div>
+</div></div>
+
+<script>
+var GAS="https://script.google.com/macros/s/AKfycbyDIMQbIFqT5n4xoBF-tETojJbj79t5QUVoB21BFUcc4JknGS7FjLeEBuIqMZxc_ytA/exec";
+var NAMES=["勝山誠也","岸本汰陽","稲葉大空","福間天友","藤嶋一晴","前田航希","黒岩基","谷瑠奈","杉本春樹","高木 美幸","京田幸隆","武山 心","瀬川浩生","足立葵叶","江尻 瑞輝","竹中理貴","牟田頼加","佐藤善平","宮川凛空","角森弘太朗","田丸拓也","勇 奏太","坂井奏","堀越 優","鈴木真海","関野咲希","西川世那","飯田優佳","三好薫月","仁和柊人","今村琳乃介","二階堂笑穂","城向葵","伊藤奨悟","門野暖大","太田煌大","山岸煌","工藤美怜","太田唄心","菅原一真","渡邉 沙來","永井竜介","正木菜海","吉村悠里","佐伯健太","金箱秀亮","佐藤姫礼","鈴木梨優","安田裕貴","下村琉唯","鈴木小暖","徳永芹","森哉大","稗田悠介","森大耀","長谷川惺也","山﨑理人","服部快"];
+var whoEl=document.getElementById("who");
+NAMES.forEach(function(n){var o=document.createElement("option");o.value=n;o.textContent=n;whoEl.appendChild(o);});
+
+var selected={}; // "2026-10-05": true
+var curY=2026, curM=10; // 既定=2026年10月
+function pad(n){return (n<10?"0":"")+n;}
+function key(y,m,d){return y+"-"+pad(m)+"-"+pad(d);}
+function renderCal(){
+  document.getElementById("ym").textContent=curY+"年"+curM+"月";
+  var first=new Date(curY,curM-1,1).getDay();
+  var days=new Date(curY,curM,0).getDate();
+  var today=new Date(); var tk=key(today.getFullYear(),today.getMonth()+1,today.getDate());
+  var g=document.getElementById("grid"); g.innerHTML="";
+  for(var i=0;i<first;i++){var b=document.createElement("div");b.className="day blank";g.appendChild(b);}
+  for(var d=1;d<=days;d++){
+    var k=key(curY,curM,d);
+    var b=document.createElement("button");b.type="button";b.className="day"+(selected[k]?" on":"")+(k===tk?" today":"");
+    b.textContent=d; b.dataset.k=k;
+    g.appendChild(b);
+  }
+  updateCount();
+}
+function updateCount(){
+  var keys=Object.keys(selected).filter(function(k){return selected[k];}).sort();
+  document.getElementById("cnt").textContent=keys.length;
+  // 月ごとに要約
+  var by={};
+  keys.forEach(function(k){var p=k.split("-");var mk=(+p[0])+"年"+(+p[1])+"月";(by[mk]=by[mk]||[]).push(+p[2]);});
+  document.getElementById("sel").innerHTML=Object.keys(by).map(function(mk){return mk+"："+by[mk].join("・")+"日";}).join("<br>");
+}
+document.getElementById("grid").addEventListener("click",function(e){
+  var b=e.target.closest(".day"); if(!b||b.classList.contains("blank"))return;
+  var k=b.dataset.k; if(selected[k]){delete selected[k];b.classList.remove("on");}else{selected[k]=true;b.classList.add("on");}
+  updateCount();
+});
+document.getElementById("prev").addEventListener("click",function(){curM--;if(curM<1){curM=12;curY--;}renderCal();});
+document.getElementById("next").addEventListener("click",function(){curM++;if(curM>12){curM=1;curY++;}renderCal();});
+whoEl.addEventListener("change",function(){
+  var on=!!whoEl.value;
+  document.getElementById("area").style.display=on?"block":"none";
+  document.getElementById("foot").style.display=on?"block":"none";
+  if(on)renderCal();
+});
+document.getElementById("send").addEventListener("click",function(){
+  var name=whoEl.value; if(!name)return;
+  var dates=Object.keys(selected).filter(function(k){return selected[k];}).sort();
+  if(!dates.length){document.getElementById("err").style.display="block";return;}
+  var btn=document.getElementById("send");btn.disabled=true;btn.textContent="送信中…";
+  fetch(GAS,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=utf-8"},
+    body:JSON.stringify({type:"availability",name:name,dates:dates})})
+    .then(finish).catch(finish);
+  setTimeout(finish,4000);
+});
+var fin=false;function finish(){if(fin)return;fin=true;
+  document.getElementById("area").style.display="none";
+  document.querySelectorAll(".card").forEach(function(c){c.style.display="none";});
+  document.querySelector(".lead").style.display="none";
+  document.getElementById("foot").style.display="none";
+  document.getElementById("done").style.display="block";
+  window.scrollTo(0,0);
+}
+</script>
+</body>
+</html>
